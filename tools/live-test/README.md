@@ -15,5 +15,8 @@ idle CPU and memory, and `--uninstall`.
 
 Its screenshots (`shot-*.png`) show whatever is on that PC's screen: delete them when done.
 
+If a system prompt keeps the focus, the harness stops rather than type into it. `explorer-check.ps1` needs no keys or
+focus: it sets the selection through Explorer's own scripting interface and asks Twig's lookup about the window.
+
 `settings-shot.ps1` opens the settings window with a throwaway config and a made-up project and captures just that
 window (for the README).

@@ -233,11 +233,11 @@ Clip 'tab-back'
 Shot '05-tabs'
 
 # 7. The hotkey with no Explorer in front: a note on the card, nothing copied.
-Start-Process notepad.exe; Start-Sleep -Milliseconds 1500
+$other = Start-Process charmap.exe -PassThru; Start-Sleep -Milliseconds 1500
 Mark; Hotkey; Start-Sleep -Milliseconds 800
 Shot '06-no-folder'
 Log "NO EXPLORER: clipboard untouched: $([System.Windows.Forms.Clipboard]::GetText() -eq '(nothing yet)')"
-Get-Process notepad -ErrorAction SilentlyContinue | Stop-Process -Force
+$other | Stop-Process -Force -ErrorAction SilentlyContinue   # only the window this test opened
 
 # 8. Idle cost of the resident once its card is gone.
 Away
