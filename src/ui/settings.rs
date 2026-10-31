@@ -220,6 +220,8 @@ impl Settings {
 
 impl eframe::App for Settings {
     fn ui(&mut self, ui: &mut Ui, _frame: &mut eframe::Frame) {
+        #[cfg(feature = "scale-test")]
+        super::test_shot::frame(ui.ctx());
         let now = ui.input(|i| i.time);
         self.poll(now);
         self.record_hotkey(ui, now);
@@ -457,15 +459,6 @@ impl Settings {
     fn preview_card(&mut self, ui: &mut Ui, now: f64) {
         card(ui, "Preview", |ui| {
             ui.horizontal(|ui| {
-                let name = self.preview.folder.as_ref().map(|p| p.display().to_string());
-                match &name {
-                    Some(n) => {
-                        ui.add(egui::Label::new(RichText::new(n).color(TEXT)).truncate()).on_hover_text(n);
-                    }
-                    None => {
-                        ui.label(RichText::new("Pick a folder to see its tree here.").color(MUTED));
-                    }
-                }
                 ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                     let ready = !self.preview.text.is_empty() && !self.preview.failed;
                     if ui.add_enabled(ready, egui::Button::new("Copy")).clicked() {
@@ -481,6 +474,17 @@ impl Settings {
                             self.preview.folder = Some(dir);
                         }
                     }
+                    // Last, so a long path is cut to what the buttons leave.
+                    ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                        match self.preview.folder.as_ref().map(|p| p.display().to_string()) {
+                            Some(n) => {
+                                ui.add(egui::Label::new(RichText::new(&n).color(TEXT)).truncate()).on_hover_text(n);
+                            }
+                            None => {
+                                ui.label(RichText::new("Pick a folder to see its tree here.").color(MUTED));
+                            }
+                        }
+                    });
                 });
             });
             if self.preview.folder.is_none() {

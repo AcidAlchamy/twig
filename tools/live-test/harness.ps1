@@ -16,6 +16,9 @@ public static class U {
   [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
   [DllImport("user32.dll")] public static extern void mouse_event(uint f, int dx, int dy, uint d, UIntPtr e);
   [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+  [StructLayout(LayoutKind.Sequential)] public struct PT { public int X, Y; }
+  [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(PT p);
+  public static IntPtr At(int x, int y) { PT p; p.X = x; p.Y = y; return WindowFromPoint(p); }
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern IntPtr FindWindow(string c, string t);
   [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
@@ -55,8 +58,17 @@ public static class U {
 $idle = [U]::Idle()
 Log "idle ms before start: $idle"
 if ($idle -lt 120000) { Log 'Someone used this PC in the last 2 minutes: not testing.'; 'ABORT' | Set-Content "$T\DONE"; exit }
+# A notification can take the focus (on the Carbon, Macrium's update toast, soon after an Explorer window opens): wait it out.
+function NoToast {
+    foreach ($i in 1..60) {
+        $h = [U]::FindWindow('Windows.UI.Core.CoreWindow', 'New notification')
+        if ($h -eq [IntPtr]::Zero -or [U]::GetForegroundWindow() -ne $h) { return }
+        Start-Sleep -Milliseconds 500
+    }
+}
 
 function Combo([byte[]]$keys) {
+    NoToast
     foreach ($k in $keys) { [U]::Key($k, $false); Start-Sleep -Milliseconds 25 }
     [array]::Reverse($keys)
     foreach ($k in $keys) { [U]::Key($k, $true); Start-Sleep -Milliseconds 25 }
@@ -70,7 +82,14 @@ function Shot($name) {
     $bmp.Save("$T\shot-$name.png")
     $g.Dispose(); $bmp.Dispose()
 }
-function Click($x, $y) { [U]::SetCursorPos($x, $y) | Out-Null; Start-Sleep -Milliseconds 120; [U]::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 60; [U]::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero) }
+function Click($x, $y) { NoToast; [U]::SetCursorPos($x, $y) | Out-Null; Start-Sleep -Milliseconds 120; [U]::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 60; [U]::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero) }
+# A notification left over the card takes a real click, and the focus with it: then the click goes straight to the card's window.
+function CardClick($x, $y, $bx, $by) {
+    $card = [U]::Win('Twig.Card')
+    if ([U]::At($x + $bx, $y + $by) -eq $card) { Click ($x + $bx) ($y + $by); return }
+    Log 'card covered: clicked through its window'
+    [U]::PostMessage($card, 0x202, [IntPtr]::Zero, [IntPtr](($by -shl 16) -bor $bx)) | Out-Null
+}
 function Mark { [System.Windows.Forms.Clipboard]::SetText('(nothing yet)') }
 # Saves the clipboard to clip-<name>.txt and logs its first line and size.
 function Clip($name) {
@@ -91,6 +110,7 @@ function Front($h) {
 }
 # Typed keys only ever go to the test's own Explorer window: anything else in front (a system prompt, say) ends the test.
 function InExplorer {
+    NoToast
     if ([U]::GetForegroundWindow() -ne $ex) {
         Fg 'instead of Explorer, so no keys were sent'
         Log 'STOPPED: something else is in front'; Finish 'STOPPED'
@@ -130,6 +150,7 @@ function Explorer($path, $prefix) {
     Start-Process explorer.exe $path
     $h = [IntPtr]::Zero
     foreach ($i in 1..40) { Start-Sleep -Milliseconds 200; $h = [U]::Starting('CabinetWClass', $prefix); if ($h -ne [IntPtr]::Zero) { break } }
+    Start-Sleep -Seconds 12; NoToast
     Front $h
     Start-Sleep -Milliseconds 500
     $h
@@ -209,7 +230,7 @@ $s = [U]::GetDpiForSystem() / 96.0
 $wa = [System.Windows.Forms.Screen]::FromPoint([System.Windows.Forms.Cursor]::Position).WorkingArea
 $cw = [int](420 * $s); $ch = [int](112 * $s); $m = [int](16 * $s)
 $cx = $wa.Right - $cw - $m; $cy = $wa.Bottom - $ch - $m
-Mark; Click ($cx + [int](187 * $s)) ($cy + [int](90 * $s)); Start-Sleep -Milliseconds 600
+Mark; CardClick $cx $cy ([int](187 * $s)) ([int](90 * $s)); Start-Sleep -Milliseconds 600
 Shot '04-markdown-clicked'
 Away
 Clip 'markdown'

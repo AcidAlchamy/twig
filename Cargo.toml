@@ -1,6 +1,6 @@
 [package]
 name = "twig"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 description = "Right-click a folder, get its tree: copied, ready to paste into a chat, a README or an issue."
 license = "MIT"
@@ -8,6 +8,10 @@ repository = "https://github.com/AcidAlchamy/twig"
 homepage = "https://acidalchamy.com/donationware/twig/"
 authors = ["Acid Alchamy"]
 publish = false
+
+[features]
+# Draws as if Windows' display scale were TWIG_TEST_SCALE, to check layouts. Never in a release.
+scale-test = []
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

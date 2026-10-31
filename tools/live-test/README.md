@@ -18,5 +18,16 @@ Its screenshots (`shot-*.png`) show whatever is on that PC's screen: delete them
 If a system prompt keeps the focus, the harness stops rather than type into it. `explorer-check.ps1` needs no keys or
 focus: it sets the selection through Explorer's own scripting interface and asks Twig's lookup about the window.
 
+`scale-check.ps1` (started by `scale.vbs`, same copy-and-schedule steps) opens the settings window, the hello card and
+the copy card and logs where each lands against the work area. For other display scales, build
+`cargo build --release --features scale-test` and copy that exe in as `Twig.exe`: it reads `TWIG_TEST_SCALE`, draws as
+if Windows were set to it, and saves what it really drew to `frame.bmp`, because a screen capture shows OpenGL windows
+as blank white on a PC whose panel isn't showing. A test build stands in for layout and sizes only: the title bar
+stays at the real scale.
+
+A notification in the corner can sit over the card, and it stays there while nobody uses the PC (Macrium's update toast
+did on the Carbon, seconds after an Explorer window opened). A real click would land on it and take the focus, so when
+something covers the card the harness sends the click straight to the card's window and logs that it did.
+
 `settings-shot.ps1` opens the settings window with a throwaway config and a made-up project and captures just that
 window (for the README).
