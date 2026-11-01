@@ -1,6 +1,6 @@
 [package]
 name = "twig"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2024"
 description = "Right-click a folder, get its tree: copied, ready to paste into a chat, a README or an issue."
 license = "MIT"

@@ -6,8 +6,8 @@
 1 24 "twig.manifest"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION     1,0,0,0
-PRODUCTVERSION  1,0,0,0
+FILEVERSION     1,0,2,0
+PRODUCTVERSION  1,0,2,0
 FILEFLAGSMASK   0x3fL
 FILEFLAGS       0x0L
 FILEOS          VOS_NT_WINDOWS32
@@ -19,13 +19,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName",      "Acid Alchamy"
-            VALUE "FileDescription",  "Nab - one key grabs the window you are in"
-            VALUE "FileVersion",      "1.0.0"
-            VALUE "InternalName",     "Nab"
+            VALUE "FileDescription",  "Twig - right-click a folder, get its tree"
+            VALUE "FileVersion",      "1.0.2"
+            VALUE "InternalName",     "Twig"
             VALUE "LegalCopyright",   "Copyright (c) 2026 Acid Alchamy. MIT License. Donationware."
-            VALUE "OriginalFilename", "Nab.exe"
-            VALUE "ProductName",      "Nab"
-            VALUE "ProductVersion",   "1.0.0"
+            VALUE "OriginalFilename", "Twig.exe"
+            VALUE "ProductName",      "Twig"
+            VALUE "ProductVersion",   "1.0.2"
             VALUE "Comments",         "Free to use. If it helps, please donate: acidalchamy.com/donationware"
         END
     END
